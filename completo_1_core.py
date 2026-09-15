@@ -1,18 +1,25 @@
 import os
 import time
 import gc
-import numpy as np
 
-# Restricción estricta a 1 núcleo
+# 1. Restricción estricta a 1 núcleo
 os.environ['OMP_NUM_THREADS'] = '1'
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
 os.environ['MKL_NUM_THREADS'] = '1'
 os.environ['VECLIB_MAXIMUM_THREADS'] = '1'
 os.environ['NUMEXPR_NUM_THREADS'] = '1'
 
+# 2. Anclar el proceso estrictamente al núcleo 0
+try:
+    os.sched_setaffinity(0, {0})
+except AttributeError:
+    pass
+
+import numpy as np
+
 def flujo_un_nucleo_ciclo(N=10000, M=10):
     tiempos_cpu, tiempos_mem, tiempos_io, tiempos_espera, tiempos_respuesta = [], [], [], [], []
-    print(f"Evaluación 1 NÚCLEO | N={N}, M={M}...")
+    print(f"Evaluación 1 NÚCLEO (Anclado al Core 0) | N={N}, M={M}...")
     rng = np.random.default_rng()
 
     for i in range(M):
